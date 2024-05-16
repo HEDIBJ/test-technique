@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cart{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Your Cart</h1>
+    {% if cart|length > 0 %}
+        <div class="row mt-4">
+            <!-- List of items -->
+            <div class="col-md-8">
+                <form>
+                    <input type="hidden" name="csrf_token" value="">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white d-flex">
+                            <h5>Items</h5>
+                            <div class="ml-auto">
+                                <button type="submit" class="btn btn-light" id="clearCartBtn" >Clear Cart</button>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for item in cart %}
+                                <li class="list-group-item d-flex">
+                                    <div class="flex-fill mr-2">
+                                        <img src="{{ item.product.image }}" width="64" alt="Product image">
+                                    </div>
+                                    <div class="flex-fill mr-2">
+                                        <h5 class="mt-0 mb-0"><a href="{{ path('app_product', {id: item.product.id}) }}">{{ item.product.title }}</a></h5>
+                                        <small>{{ item.product.description|slice(0, 50) }}...</small>
+                                        <div class="form-inline mt-2">
+                                            <div class="form-group mb-0 mr-2">
+                                                <label>
+                                                    <input type="number" name="quantity[{{ item.product.id }}]" class="form-control form-control-sm" value="{{ item.quantity }}" min="1">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-fill mr-2 text-right">
+                                        <b>{{ item.product.price }} €</b>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <!-- Summary -->
+            <div class="col-md-4">
+                <div class="card mt-4 mt-md-0">
+                    <h5 class="card-header bg-dark text-white">Summary</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div><b>Total</b></div>
+                            <span><b>{{ cartTotal }} €</b></span>
+                        </li>
+                    </ul>
+                    <div class="card-body">
+                        <a href="#" class="btn btn-warning w-100">Checkout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Your cart is empty. Go to the <a href="{{ path('home') }}">product list</a>.
+        </div>
+    {% endif %}
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+
+        $('#clearCartBtn').click(function () {
+            $.ajax({
+                url: '/clear',
+                type: 'DELETE',
+                success: function (response) {
+                    alert('Cart cleared successfully!');
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Failed to clear cart. Please try again.');
+                }
+            });
+        });
+    })
+</script>
+{% endblock %}
